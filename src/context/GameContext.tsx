@@ -56,7 +56,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           id: Date.now().toString(),
           phrases: [],
           currentPhraseIndex: 0,
-          groupVote: null,
+          phraseResults: [],
           isCompleted: false,
         },
         // Reset lost points flag
@@ -120,11 +120,17 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case 'SET_GROUP_VOTE': {
       if (!state.currentRound) return state;
       
+      const currentPhrase = state.currentRound.phrases[state.currentRound.currentPhraseIndex];
+      const newResult = {
+        phraseId: currentPhrase.id,
+        groupVote: action.payload.guessedAuthorId,
+      };
+      
       return {
         ...state,
         currentRound: {
           ...state.currentRound,
-          groupVote: action.payload.guessedAuthorId,
+          phraseResults: [...state.currentRound.phraseResults, newResult],
         },
       };
     }
@@ -133,10 +139,12 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       if (!state.currentRound) return state;
       
       const currentPhrase = state.currentRound.phrases[state.currentRound.currentPhraseIndex];
-      const groupVote = state.currentRound.groupVote;
+      const currentResult = state.currentRound.phraseResults.find(r => r.phraseId === currentPhrase.id);
+      
+      if (!currentResult) return state;
       
       // Verificar se o grupo acertou
-      const groupCorrect = groupVote === currentPhrase.authorId;
+      const groupCorrect = currentResult.groupVote === currentPhrase.authorId;
       
       let updatedPlayers = state.players;
       if (groupCorrect) {
@@ -181,7 +189,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         currentRound: {
           ...state.currentRound,
           currentPhraseIndex: nextPhraseIndex,
-          groupVote: null, // Limpar votos para a próxima frase
+          // phraseResults mantém os resultados de todas as frases
         },
       };
     }
@@ -202,7 +210,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
           id: Date.now().toString(),
           phrases: [],
           currentPhraseIndex: 0,
-          groupVote: null,
+          phraseResults: [],
           isCompleted: false,
         },
         // Reset lost points flag
@@ -229,14 +237,13 @@ interface GameContextType {
   startGame: () => void;
   addPhrase: (text: string, authorId: string) => void;
   nextPlayer: () => void;
-  addVote: (playerId: string, guessedAuthorId: string) => void;
+  setGroupVote: (guessedAuthorId: string) => void;
   revealAuthorAndUpdateScore: () => void;
   nextPhrase: () => void;
   showScoreboard: () => void;
   newRound: () => void;
   resetGame: () => void;
   getCurrentPhrase: () => Phrase | null;
-  hasAllPlayersVoted: () => boolean;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -265,8 +272,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'NEXT_PLAYER' });
   };
 
-  const addVote = (playerId: string, guessedAuthorId: string) => {
-    dispatch({ type: 'ADD_VOTE', payload: { playerId, guessedAuthorId } });
+  const setGroupVote = (guessedAuthorId: string) => {
+    dispatch({ type: 'SET_GROUP_VOTE', payload: { guessedAuthorId } });
   };
 
   const revealAuthorAndUpdateScore = () => {
@@ -296,11 +303,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return state.currentRound.phrases[state.currentRound.currentPhraseIndex];
   };
 
-  const hasAllPlayersVoted = (): boolean => {
-    if (!state.currentRound) return false;
-    return state.currentRound.votes.length === state.players.length;
-  };
-
   const value: GameContextType = {
     state,
     dispatch,
@@ -309,14 +311,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     startGame,
     addPhrase,
     nextPlayer,
-    addVote,
+    setGroupVote,
     revealAuthorAndUpdateScore,
     nextPhrase,
     showScoreboard,
     newRound,
     resetGame,
     getCurrentPhrase,
-    hasAllPlayersVoted,
   };
 
   return (

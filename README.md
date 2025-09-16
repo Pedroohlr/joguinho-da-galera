@@ -19,9 +19,9 @@ Um jogo divertido e interativo onde os jogadores adivinham quem escreveu cada fr
 
 #### 🤔 **Fase 2 - Adivinhação**
 - Uma frase é sorteada e exibida (sem revelar o autor)
-- Todos os jogadores votam em quem acham que escreveu
-- **Se TODOS acertarem**: O autor perde 1 ponto
-- **Se nem todos acertarem**: Ninguém perde ponto
+- O grupo discute e vota em conjunto em quem acham que escreveu
+- **Se o GRUPO acertar**: O autor perde 1 ponto
+- **Se o grupo errar**: Ninguém perde ponto
 
 #### 📊 **Placar**
 - Veja a pontuação atualizada
@@ -111,7 +111,7 @@ src/
 
 ### ✅ Fases do Jogo
 - **Escrita de Frases**: Interface individual para cada jogador
-- **Adivinhação**: Votação interativa com feedback visual
+- **Adivinhação**: Votação em grupo com discussão
 - **Placar**: Tabela completa com estatísticas da rodada
 
 ### ✅ Interface Mobile-First

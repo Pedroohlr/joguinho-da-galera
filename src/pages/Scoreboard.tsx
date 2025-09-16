@@ -27,6 +27,43 @@ export default function Scoreboard() {
         </CardHeader>
         
         <CardContent className="space-y-6">
+          {/* Resumo da Rodada */}
+          {state.currentRound && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-center">📖 Resumo da Rodada</h3>
+              <div className="space-y-3">
+                {state.currentRound.phrases.map((phrase, index) => {
+                  const author = state.players.find(p => p.id === phrase.authorId);
+                  const result = state.currentRound?.phraseResults.find(r => r.phraseId === phrase.id);
+                  const groupVote = result?.groupVote;
+                  const wasCorrect = groupVote === phrase.authorId;
+                  const votedPlayer = state.players.find(p => p.id === groupVote);
+                  
+                  return (
+                    <Card key={phrase.id} className={`${wasCorrect ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'} text-sm`}>
+                      <CardContent className="pt-3 pb-3">
+                        <div className="space-y-2">
+                          <p className="italic">"{phrase.text}"</p>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-medium">
+                              Por: {author?.name}
+                            </span>
+                            <span className={`px-2 py-1 rounded ${wasCorrect ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'}`}>
+                              {wasCorrect ? `😔 -1 ponto` : `😊 Salvou-se`}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Grupo votou em: <strong>{votedPlayer?.name || 'Ninguém'}</strong>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Placar */}
           <div className="space-y-4">
             <Table>

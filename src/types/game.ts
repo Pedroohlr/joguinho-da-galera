@@ -12,11 +12,16 @@ export interface Phrase {
   used: boolean;
 }
 
+export interface PhraseResult {
+  phraseId: string;
+  groupVote: string; // ID do jogador que o grupo escolheu
+}
+
 export interface Round {
   id: string;
   phrases: Phrase[];
   currentPhraseIndex: number;
-  groupVote: string | null; // ID do jogador que o grupo escolheu
+  phraseResults: PhraseResult[]; // Resultados de cada frase
   isCompleted: boolean;
 }
 
